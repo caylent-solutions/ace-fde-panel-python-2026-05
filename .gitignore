@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.venv/
+*.db
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Local worktree directories (per-persona CLAUDE.md overlays land
+# under .worktrees/wt-<persona>/CLAUDE.md and are covered by this).
+.worktrees/
