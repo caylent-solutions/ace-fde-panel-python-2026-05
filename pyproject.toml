@@ -1,0 +1,8 @@
+[project]
+name = "cadence"
+version = "0.1.0"
+dependencies = [
+    "fastapi",
+    "sqlalchemy",
+    "pydantic",
+]
