@@ -1,0 +1,10 @@
+{
+  "name": "cadence",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspace",
+  "postCreateCommand": "pip install -e .",
+  "extensions": [
+    "ms-python.python"
+  ]
+}
