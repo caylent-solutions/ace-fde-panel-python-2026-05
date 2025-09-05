@@ -1,5 +1,7 @@
 from .base import IntegrationHandler
 
+SLACK_TIMEOUT = 5
+
 
 class SlackIntegration(IntegrationHandler):
     def __init__(self, webhook_url):
