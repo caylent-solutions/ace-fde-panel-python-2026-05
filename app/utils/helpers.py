@@ -93,3 +93,73 @@ def safe_float(val, default=0.0):
         return float(val)
     except (TypeError, ValueError):
         return default
+
+
+def retry_with_backoff(fn, retries=3, base_delay=1.0, exceptions=(Exception,)):
+    last_exc = None
+    for attempt in range(retries):
+        try:
+            return fn()
+        except exceptions as e:
+            last_exc = e
+            delay = base_delay * (2 ** attempt) + random.uniform(0, 0.5)
+            time.sleep(delay)
+    raise last_exc
+
+
+def b64_encode_dict(d):
+    import base64
+    import json
+    raw = json.dumps(d).encode("utf-8")
+    return base64.b64encode(raw).decode("utf-8")
+
+
+def b64_decode_dict(s):
+    import base64
+    import json
+    raw = base64.b64decode(s.encode("utf-8"))
+    return json.loads(raw)
+
+
+def paginate_offset(query, page, page_size=20):
+    offset = (page - 1) * page_size
+    return query.offset(offset).limit(page_size)
+
+
+def paginate_list(lst, page, page_size=20):
+    offset = (page - 1) * page_size
+    return lst[offset:offset + page_size]
+
+
+def deep_merge(base, override):
+    result = dict(base)
+    for k, v in override.items():
+        if k in result and isinstance(result[k], dict) and isinstance(v, dict):
+            result[k] = deep_merge(result[k], v)
+        else:
+            result[k] = v
+    return result
+
+
+def pick(d, keys):
+    return {k: d[k] for k in keys if k in d}
+
+
+def omit(d, keys):
+    return {k: v for k, v in d.items() if k not in keys}
+
+
+def compact(lst):
+    return [x for x in lst if x is not None and x != "" and x is not False]
+
+
+def first_or_none(lst):
+    return lst[0] if lst else None
+
+
+def group_by(lst, key_fn):
+    out = {}
+    for item in lst:
+        k = key_fn(item)
+        out.setdefault(k, []).append(item)
+    return out
