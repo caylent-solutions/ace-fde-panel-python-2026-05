@@ -163,3 +163,70 @@ def group_by(lst, key_fn):
         k = key_fn(item)
         out.setdefault(k, []).append(item)
     return out
+
+
+def format_phone_number(phone):
+    digits = re.sub(r"\D", "", phone)
+    if len(digits) == 10:
+        return f"({digits[:3]}) {digits[3:6]}-{digits[6:]}"
+    if len(digits) == 11 and digits[0] == "1":
+        return f"+1 ({digits[1:4]}) {digits[4:7]}-{digits[7:]}"
+    return phone
+
+
+def strip_html_tags(text):
+    clean = re.sub(r"<[^>]+>", "", text)
+    clean = re.sub(r"&nbsp;", " ", clean)
+    clean = re.sub(r"&amp;", "&", clean)
+    clean = re.sub(r"&lt;", "<", clean)
+    clean = re.sub(r"&gt;", ">", clean)
+    return clean.strip()
+
+
+def camel_to_snake(name):
+    s1 = re.sub(r"(.)([A-Z][a-z]+)", r"\1_\2", name)
+    return re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
+
+
+def snake_to_camel(name):
+    parts = name.split("_")
+    return parts[0] + "".join(p.title() for p in parts[1:])
+
+
+def mask_string(s, visible=4, char="*"):
+    if not s or len(s) <= visible:
+        return char * len(s) if s else ""
+    return char * (len(s) - visible) + s[-visible:]
+
+
+def url_join(*parts):
+    result = "/".join(p.strip("/") for p in parts if p)
+    return result
+
+
+def clamp(val, min_val, max_val):
+    return max(min_val, min(max_val, val))
+
+
+def unique(lst):
+    seen = set()
+    out = []
+    for item in lst:
+        if item not in seen:
+            seen.add(item)
+            out.append(item)
+    return out
+
+
+def dict_diff(a, b):
+    added = {k: b[k] for k in b if k not in a}
+    removed = {k: a[k] for k in a if k not in b}
+    changed = {k: (a[k], b[k]) for k in a if k in b and a[k] != b[k]}
+    return {"added": added, "removed": removed, "changed": changed}
+
+
+def split_list(lst, predicate):
+    yes, no = [], []
+    for item in lst:
+        (yes if predicate(item) else no).append(item)
+    return yes, no
