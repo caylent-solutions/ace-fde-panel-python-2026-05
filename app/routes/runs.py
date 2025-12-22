@@ -33,4 +33,4 @@ def get_run_steps(run_id: int, db: Session = Depends(get_db)) -> dict:
     run = db.query(Run).filter(Run.id == run_id).first()
     if not run:
         raise HTTPException(status_code=404, detail="run not found")
-    return {"run_id": run_id, "steps": []}
+    return {"run_id": run_id, "steps": [], "count": 0}
