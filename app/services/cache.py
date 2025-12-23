@@ -45,3 +45,21 @@ def cache_workflow(workflow_id, data):
 def invalidate_workflow(workflow_id):
     key = f"workflow:{workflow_id}"
     delete(key)
+
+
+def cache_user(user_id, data):
+    # TODO: same as workflow cache — need to generalize this
+    key = f"user:{user_id}"
+    set(key, str(data))
+
+
+def get_cached_user(user_id):
+    key = f"user:{user_id}"
+    return get(key)
+
+
+def ping():
+    try:
+        return get_client().ping()
+    except Exception:
+        return False
