@@ -48,3 +48,4 @@ def test_get_run_steps():
     data = resp.json()
     assert data["run_id"] == run_id
     assert "steps" in data
+    assert data["count"] == 0
