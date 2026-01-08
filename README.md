@@ -36,6 +36,10 @@ uvicorn app.main:app --reload
 pytest
 ```
 
+## pre-commit hooks
+
+run `pre-commit install` after cloning, then `pre-commit run --all-files` to lint.
+
 ## stack
 
 - python 3.11
