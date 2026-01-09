@@ -14,7 +14,7 @@ from app.services.workflows.models import (
     Workflow,
     WorkflowStep,
 )
-from app.services.workflows.runner import SequentialWorkflowRunner
+from app.services.workflows.runner import SequentialWorkflowRunner, StepResult
 
 
 def _build_step(ordinal: int, name: str, action: str = "noop") -> WorkflowStep:
@@ -49,9 +49,14 @@ def test_runner_executes_steps_in_order_and_records_outputs() -> None:
     workflow = _build_workflow((step_a, step_b))
     call_log: list[str] = []
 
-    def executor(step: WorkflowStep, context: dict[str, Any]) -> dict[str, Any]:
+    def executor(step: WorkflowStep, context: dict[str, Any]) -> StepResult:
         call_log.append(step.name)
-        return {"echoed": step.name, "context_outputs_seen": list(context["outputs"].keys())}
+        return StepResult(
+            output={
+                "echoed": step.name,
+                "context_outputs_seen": list(context["outputs"].keys()),
+            }
+        )
 
     def resolver(step: WorkflowStep) -> Any:
         return executor
@@ -79,11 +84,11 @@ def test_runner_halts_on_step_failure_and_marks_subsequent_pending() -> None:
     workflow = _build_workflow((step_a, step_b, step_c))
     call_log: list[str] = []
 
-    def executor(step: WorkflowStep, context: dict[str, Any]) -> dict[str, Any]:
+    def executor(step: WorkflowStep, context: dict[str, Any]) -> StepResult:
         call_log.append(step.name)
         if step.name == "boom":
             raise RuntimeError("step exploded")
-        return {"ok": True}
+        return StepResult(output={"ok": True})
 
     def resolver(step: WorkflowStep) -> Any:
         return executor

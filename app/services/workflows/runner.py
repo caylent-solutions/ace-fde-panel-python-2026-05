@@ -7,6 +7,7 @@ belongs in a later iteration once at least one consumer asks for it.
 
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Callable
 from uuid import UUID, uuid4
@@ -20,7 +21,15 @@ from .models import (
     WorkflowStepRun,
 )
 
-StepCallable = Callable[[WorkflowStep, dict[str, Any]], dict[str, Any]]
+
+@dataclass(frozen=True)
+class StepResult:
+    """Typed return shape from a step executor."""
+
+    output: dict[str, Any] = field(default_factory=dict)
+
+
+StepCallable = Callable[[WorkflowStep, dict[str, Any]], StepResult]
 StepResolverFn = Callable[[WorkflowStep], StepCallable]
 
 
@@ -81,7 +90,7 @@ class SequentialWorkflowRunner:
         executor = self._resolver(step)
         started_at = _now()
         try:
-            output = executor(step, context)
+            result = executor(step, context)
         except Exception as exc:
             return WorkflowStepRun(
                 id=uuid4(),
@@ -94,7 +103,7 @@ class SequentialWorkflowRunner:
                 output=None,
                 error=str(exc),
             )
-        context["outputs"][step.name] = output
+        context["outputs"][step.name] = result.output
         return WorkflowStepRun(
             id=uuid4(),
             run_id=run_id,
@@ -103,7 +112,7 @@ class SequentialWorkflowRunner:
             status=StepStatus.SUCCEEDED,
             started_at=started_at,
             finished_at=_now(),
-            output=output,
+            output=result.output,
             error=None,
         )
 
