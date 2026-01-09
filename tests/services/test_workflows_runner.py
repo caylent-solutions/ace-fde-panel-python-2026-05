@@ -103,5 +103,21 @@ def test_runner_halts_on_step_failure_and_marks_subsequent_pending() -> None:
     assert run.step_runs[2].finished_at is None
 
 
+def test_runner_completes_workflow_with_no_steps() -> None:
+    workflow = _build_workflow(())
+
+    def resolver(step: WorkflowStep) -> Any:
+        raise AssertionError("resolver should not be called for an empty workflow")
+
+    runner = SequentialWorkflowRunner(resolver=resolver)
+    run = runner.run(workflow, triggered_by="test-user")
+
+    assert run.status is RunStatus.SUCCEEDED
+    assert run.step_runs == ()
+    assert run.started_at is not None
+    assert run.finished_at is not None
+    assert run.finished_at >= run.started_at
+
+
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__, "-v"]))
