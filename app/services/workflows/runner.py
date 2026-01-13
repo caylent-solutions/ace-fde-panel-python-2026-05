@@ -12,6 +12,7 @@ from datetime import datetime, timezone
 from typing import Any, Callable
 from uuid import UUID, uuid4
 
+from .idempotency import IdempotencyStore
 from .models import (
     RunStatus,
     StepStatus,
@@ -40,15 +41,26 @@ def _now() -> datetime:
 class SequentialWorkflowRunner:
     """Runs a workflow's steps end-to-end in ordinal order."""
 
-    def __init__(self, resolver: StepResolverFn) -> None:
+    def __init__(
+        self,
+        resolver: StepResolverFn,
+        idempotency_store: IdempotencyStore | None = None,
+    ) -> None:
         self._resolver = resolver
+        self._idempotency_store = idempotency_store
 
     def run(
         self,
         workflow: Workflow,
         triggered_by: str,
         input: dict[str, Any] | None = None,
+        idempotency_key: str | None = None,
     ) -> WorkflowRun:
+        if idempotency_key is not None and self._idempotency_store is not None:
+            cached = self._idempotency_store.get(idempotency_key)
+            if cached is not None:
+                return cached
+
         run_id = uuid4()
         started_at = _now()
         ordered = sorted(workflow.steps, key=lambda s: s.ordinal)
@@ -68,7 +80,7 @@ class SequentialWorkflowRunner:
                 run_status = RunStatus.FAILED
 
         finished_at = _now()
-        return WorkflowRun(
+        run = WorkflowRun(
             id=run_id,
             workflow_id=workflow.id,
             account_id=workflow.account_id,
@@ -80,6 +92,15 @@ class SequentialWorkflowRunner:
             started_at=started_at,
             finished_at=finished_at,
         )
+
+        if (
+            idempotency_key is not None
+            and self._idempotency_store is not None
+            and run.status is RunStatus.SUCCEEDED
+        ):
+            self._idempotency_store.put(idempotency_key, run)
+
+        return run
 
     def _execute_step(
         self,
