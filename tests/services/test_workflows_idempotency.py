@@ -104,5 +104,30 @@ def test_store_releases_keys_past_ttl() -> None:
     assert call_log == ["alpha", "alpha"]
 
 
+def test_failed_runs_are_not_cached() -> None:
+    workflow = _build_workflow((_build_step(0, "boom"),))
+    call_log: list[str] = []
+
+    def executor(step: WorkflowStep, context: dict[str, Any]) -> StepResult:
+        call_log.append(step.name)
+        raise RuntimeError("transient failure")
+
+    def resolver(step: WorkflowStep) -> Any:
+        return executor
+
+    store = InMemoryIdempotencyStore(ttl=timedelta(hours=1))
+    runner = SequentialWorkflowRunner(resolver=resolver, idempotency_store=store)
+
+    first = runner.run(workflow, triggered_by="user-1", idempotency_key="retry-me")
+    second = runner.run(workflow, triggered_by="user-1", idempotency_key="retry-me")
+
+    assert first.status is RunStatus.FAILED
+    assert second.status is RunStatus.FAILED
+    assert call_log == ["boom", "boom"]
+    assert first.id != second.id
+    assert store.get("retry-me") is None
+    assert first.step_runs[0].status is StepStatus.FAILED
+
+
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__, "-v"]))
