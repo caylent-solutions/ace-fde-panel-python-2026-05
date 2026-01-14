@@ -15,6 +15,7 @@ export default function ApiKeysPage() {
   }, []);
 
   function handleRevoke(id: string) {
+    if (!window.confirm("Revoke this key? This cannot be undone.")) return;
     fetch(`/api/api-keys/${id}`, { method: "DELETE" }).then(() => {
       setKeys(keys.filter((k) => k.id !== id));
     });
