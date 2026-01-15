@@ -21,7 +21,9 @@ export function ApiKeyRow({ apiKey, onRevoke }: Props) {
       </td>
       <td>{apiKey.created_at}</td>
       <td>
-        <button onClick={() => onRevoke(apiKey.id)}>Revoke</button>
+        <button onClick={() => onRevoke(apiKey.id)} data-testid="revoke-btn">
+          Revoke
+        </button>
       </td>
     </tr>
   );
