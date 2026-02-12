@@ -13,6 +13,8 @@ from uuid import UUID, uuid4
 from fastapi import APIRouter, Depends, Header, HTTPException, status
 from pydantic import BaseModel, Field
 
+from app.auth.api_key import api_key_auth
+from app.models.api_key import ApiKey
 from app.services.workflows.idempotency import (
     IdempotencyStore,
     InMemoryIdempotencyStore,
@@ -156,6 +158,7 @@ def run_workflow(
     idempotency_key: str | None = Header(default=None, alias="Idempotency-Key"),
     store: dict[UUID, Workflow] = Depends(get_workflow_store),
     runner: SequentialWorkflowRunner = Depends(get_runner),
+    caller: ApiKey = Depends(api_key_auth),
 ) -> dict[str, Any]:
     workflow = store.get(workflow_id)
     if workflow is None:
