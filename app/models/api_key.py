@@ -11,3 +11,4 @@ class ApiKey(Base):
     user_id = Column(Integer, nullable=False)
     name = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    requests_per_minute = Column(Integer, nullable=True, default=None)

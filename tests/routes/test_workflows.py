@@ -8,7 +8,9 @@ from uuid import UUID, uuid4
 import pytest
 from fastapi.testclient import TestClient
 
+from app.auth.api_key import api_key_auth
 from app.main import app
+from app.models.api_key import ApiKey
 from app.routes.workflows import (
     get_step_resolver,
     get_workflow_store,
@@ -32,8 +34,12 @@ def client() -> TestClient:
 
         return _execute
 
+    def _stub_caller() -> ApiKey:
+        return ApiKey(id=1, key="ak_test", user_id=1, name="test-caller")
+
     app.dependency_overrides[get_workflow_store] = _override_store
     app.dependency_overrides[get_step_resolver] = lambda: _resolver
+    app.dependency_overrides[api_key_auth] = _stub_caller
 
     test_client = TestClient(app)
     test_client.call_log = call_log  # type: ignore[attr-defined]
