@@ -13,19 +13,31 @@ from uuid import UUID
 from .models import Workflow, WorkflowRun, WorkflowStep, WorkflowStepRun
 
 
-@runtime_checkable
-class StepResolver(Protocol):
-    """Resolves a step's action name to an executable callable."""
-
-    def resolve(self, step: WorkflowStep) -> "StepExecutor": ...
-
-
 class StepExecutor(Protocol):
     """Executes a single step against a run's input/context."""
 
     def __call__(
         self, step: WorkflowStep, context: dict[str, Any]
-    ) -> dict[str, Any]: ...
+    ) -> "StepResult": ...
+
+
+class StepResult(Protocol):
+    """Typed return shape from a step executor."""
+
+    @property
+    def output(self) -> dict[str, Any]: ...
+
+
+@runtime_checkable
+class StepResolver(Protocol):
+    """Resolves a step to its executor.
+
+    The runner depends on this protocol rather than a concrete class
+    so callers can swap implementations without importing the runner
+    module.
+    """
+
+    def __call__(self, step: WorkflowStep) -> StepExecutor: ...
 
 
 @runtime_checkable
