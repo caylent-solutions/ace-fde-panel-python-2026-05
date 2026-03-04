@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Any, Callable
+from typing import Any
 from uuid import UUID, uuid4
 
 from .idempotency import IdempotencyStore
@@ -21,17 +21,17 @@ from .models import (
     WorkflowStep,
     WorkflowStepRun,
 )
+from .protocols import StepResolver
 
 
 @dataclass(frozen=True)
 class StepResult:
-    """Typed return shape from a step executor."""
+    """Concrete return shape from a step executor."""
 
     output: dict[str, Any] = field(default_factory=dict)
 
 
-StepCallable = Callable[[WorkflowStep, dict[str, Any]], StepResult]
-StepResolverFn = Callable[[WorkflowStep], StepCallable]
+StepResolverFn = StepResolver
 
 
 def _now() -> datetime:
@@ -43,7 +43,7 @@ class SequentialWorkflowRunner:
 
     def __init__(
         self,
-        resolver: StepResolverFn,
+        resolver: StepResolver,
         idempotency_store: IdempotencyStore | None = None,
     ) -> None:
         self._resolver = resolver
