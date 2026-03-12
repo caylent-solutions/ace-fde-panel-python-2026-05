@@ -12,6 +12,9 @@ def get_prefs(user_id: int, db: Session) -> list[NotificationPref]:
 
 
 def set_pref(user_id: int, channel: str, enabled: bool, db: Session) -> NotificationPref:
+    if not channel:
+        logger.warning("set_pref called with empty channel for user %s", user_id)
+        raise ValueError("channel is required")
     pref = db.query(NotificationPref).filter(
         NotificationPref.user_id == user_id,
         NotificationPref.channel == channel,
