@@ -1,9 +1,9 @@
-import hashlib
+"""Auth package public surface.
 
+Re-exports the password helpers so existing call sites keep
+working while the implementation moves to bcrypt under the hood.
+"""
 
-def hash_password(password):
-    return hashlib.sha256(password.encode()).hexdigest()
+from .passwords import hash_password, is_legacy_hash, verify_password
 
-
-def verify_password(password, password_hash):
-    return hash_password(password) == password_hash
+__all__ = ["hash_password", "is_legacy_hash", "verify_password"]
