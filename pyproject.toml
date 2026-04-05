@@ -5,4 +5,5 @@ dependencies = [
     "fastapi",
     "sqlalchemy",
     "pydantic",
+    "bcrypt",
 ]
