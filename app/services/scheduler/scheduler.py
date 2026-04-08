@@ -11,6 +11,8 @@ class IntervalScheduler:
         self._thread: Optional[threading.Thread] = None
 
     def add_job(self, name: str, func: Callable, interval_seconds):
+        if func is None:
+            return
         self._jobs[name] = {"func": func, "interval": interval_seconds, "last_run": 0}
 
     def remove_job(self, name):
