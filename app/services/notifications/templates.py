@@ -5,8 +5,6 @@ TEMPLATES: dict[str, str] = {
 }
 
 
-def render(template_key: str, context: dict) -> str:
-    if template_key not in TEMPLATES:
-        raise ValueError(f"Unknown template: {template_key}")
-    template = TEMPLATES[template_key]
-    return template.format(**context)
+def render(template_key, context):
+    from app.services.notifications.loader import render_template
+    return render_template(template_key, context)
