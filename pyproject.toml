@@ -6,4 +6,5 @@ dependencies = [
     "sqlalchemy",
     "pydantic",
     "bcrypt",
+    "celery>=5.4.0",
 ]
