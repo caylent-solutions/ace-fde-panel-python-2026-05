@@ -17,9 +17,11 @@ or run locally without Docker:
 ```
 python3.11 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload
+make install
+make run
 ```
+
+Run `make help` to see the rest of the dev targets (test, lint, typecheck, etc.).
 
 ## environment variables
 
