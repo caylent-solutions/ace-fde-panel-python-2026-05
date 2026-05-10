@@ -1,0 +1,15 @@
+# Runtime dependencies (mirrored from pyproject.toml).
+fastapi
+sqlalchemy
+pydantic
+bcrypt
+celery
+redis
+uvicorn
+
+# Dev dependencies — explicit so `make install` is idempotent.
+pytest
+pytest-cov
+ruff
+mypy
+httpx
