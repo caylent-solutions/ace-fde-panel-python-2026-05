@@ -1,14 +1,18 @@
 FROM python:3.11-slim
 
-# Match the postgres major in docker-compose.yml so psql in the dev
-# container talks the same wire version as the db service.
+# Install PostgreSQL client and build dependencies for psycopg2
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends postgresql-client-14 \
+    && apt-get install -y --no-install-recommends \
+       postgresql-client \
+       build-essential \
+       python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /workspace
 
-COPY pyproject.toml .
-RUN pip install -e .
+COPY pyproject.toml requirements.txt .
+RUN pip install -e . && pip install -r requirements.txt
 
 COPY . .
+
+CMD ["tail", "-f", "/dev/null"]

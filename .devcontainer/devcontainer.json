@@ -3,7 +3,12 @@
   "dockerComposeFile": "../docker-compose.yml",
   "service": "app",
   "workspaceFolder": "/workspace",
-  "postCreateCommand": "pip install -e .",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "moby": false
+    }
+  },
+  "postCreateCommand": "pip install -e . && pip install -r requirements.txt",
   "extensions": [
     "ms-python.python"
   ]

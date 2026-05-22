@@ -5,6 +5,8 @@ services:
     build:
       context: .
       dockerfile: .devcontainer/Dockerfile
+    privileged: true
+    init: true
     volumes:
       - .:/workspace
     depends_on:
