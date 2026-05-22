@@ -1,6 +1,7 @@
 # Runtime dependencies (mirrored from pyproject.toml).
 fastapi
 sqlalchemy
+psycopg2-binary
 pydantic
 bcrypt
 celery
